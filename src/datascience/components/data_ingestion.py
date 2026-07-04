@@ -1,33 +1,26 @@
 import os
+import urllib.request as request
 from src.datascience import logger
-from src.datascience.entity.config_entity import DataValidationConfig
-import pandas as pd
+import zipfile
+from src.datascience.entity.config_entity import DataIngestionConfig
 
 
-class DataValiadtion:
-    def __init__(self, config: DataValidationConfig):
+class DataIngestion:
+    def __init__(self, config: DataIngestionConfig):
         self.config = config
 
-    def validate_all_columns(self) -> bool:
-        try:
-            validation_status = None
+    def download_file(self):
+        if not os.path.exists(self.config.local_data_file):
+            filename, headers = request.urlretrieve(
+                url=self.config.source_URL,
+                filename=self.config.local_data_file
+            )
+            logger.info(f"{filename} download! with following info: \n{headers}")
+        else:
+            logger.info(f"File already exists")
 
-            data = pd.read_csv(self.config.unzip_data_dir)
-            all_cols = list(data.columns)
-
-            all_schema = self.config.all_schema.keys()
-
-            for col in all_cols:
-                if col not in all_schema:
-                    validation_status = False
-                    with open(self.config.STATUS_FILE, 'w') as f:
-                        f.write(f"Validation status: {validation_status}")
-                else:
-                    validation_status = True
-                    with open(self.config.STATUS_FILE, 'w') as f:
-                        f.write(f"Validation status: {validation_status}")
-
-            return validation_status
-
-        except Exception as e:
-            raise e
+    def extract_zip_file(self):
+        unzip_path = self.config.unzip_dir
+        os.makedirs(unzip_path, exist_ok=True)
+        with zipfile.ZipFile(self.config.local_data_file, 'r') as zip_ref:
+            zip_ref.extractall(unzip_path)
