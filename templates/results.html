@@ -1,2 +1,57 @@
-<h1>Predicted Wine Quality: {{prediction}}</h1>
-<a href="/">Go Back</a>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vinify - Prediction Result</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0f172a;
+            font-family: 'Lato', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        .bg-blob {
+            position: absolute;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 relative text-slate-200">
+
+    <div class="bg-blob bg-rose-900 w-96 h-96 rounded-full top-0 left-0 opacity-70"></div>
+    <div class="bg-blob bg-purple-900 w-96 h-96 rounded-full bottom-0 right-0 opacity-70"></div>
+
+    <div class="glass-panel rounded-2xl max-w-md w-full mx-4 p-8 text-center relative z-10">
+        <div class="w-20 h-20 bg-rose-900/50 rounded-full flex items-center justify-center mx-auto mb-6 border border-rose-500/50">
+            <i class="fa-solid fa-wine-glass text-3xl text-amber-400"></i>
+        </div>
+
+        <h1 class="text-2xl font-serif text-white mb-2">Analysis Complete</h1>
+        <p class="text-slate-400 mb-6">Based on the physicochemical properties provided:</p>
+
+        <div class="bg-black/40 rounded-xl p-6 mb-6 border border-white/5">
+            <span class="block text-sm text-slate-400 uppercase tracking-widest mb-1">Predicted Quality</span>
+            <span class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-200">
+                {{prediction}}
+            </span>
+            <span class="text-xl text-slate-500">/ 10</span>
+        </div>
+
+        <a href="/" class="block w-full py-3 rounded-lg border border-white/10 hover:bg-white/5 text-slate-300 transition-colors">
+            <i class="fa-solid fa-arrow-left mr-2"></i> Analyze Another
+        </a>
+    </div>
+
+</body>
+</html>
