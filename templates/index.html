@@ -2,23 +2,491 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Wine Quality Predictor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vinify - Wine Quality Predictor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['"Playfair Display"', 'serif'],
+                        sans: ['"Lato"', 'sans-serif'],
+                    },
+                    colors: {
+                        wine: {
+                            50: '#fdf2f4',
+                            100: '#fce7eb',
+                            200: '#f8d0d9',
+                            300: '#f2aab9',
+                            400: '#e97892',
+                            500: '#db4f70',
+                            600: '#c72f52',
+                            700: '#a72242',
+                            800: '#8c1f3b', // Deep Wine
+                            900: '#771d36',
+                        },
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                        }
+                    },
+                    animation: {
+                        'blob': 'blob 7s infinite',
+                        'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+                    },
+                    keyframes: {
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        },
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0f172a;
+            overflow-x: hidden;
+        }
+        
+        /* Glassmorphism Utilities */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .glass-input {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .glass-input:focus {
+            background: rgba(0, 0, 0, 0.4);
+            border-color: #db4f70;
+            box-shadow: 0 0 15px rgba(219, 79, 112, 0.3);
+            outline: none;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #771d36; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a72242; 
+        }
+
+        /* Animated Background Blobs */
+        .bg-blob {
+            position: absolute;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.6;
+            animation: blob 10s infinite alternate;
+        }
+    </style>
 </head>
-<body>
-    <h1>Wine Quality Prediction</h1>
-    <form action="/predict" method="post">
-        <label>Fixed Acidity:</label><input type="number" step="any" name="fixed_acidity" required><br>
-        <label>Volatile Acidity:</label><input type="number" step="any" name="volatile_acidity" required><br>
-        <label>Citric Acid:</label><input type="number" step="any" name="citric_acid" required><br>
-        <label>Residual Sugar:</label><input type="number" step="any" name="residual_sugar" required><br>
-        <label>Chlorides:</label><input type="number" step="any" name="chlorides" required><br>
-        <label>Free Sulfur Dioxide:</label><input type="number" step="any" name="free_sulfur_dioxide" required><br>
-        <label>Total Sulfur Dioxide:</label><input type="number" step="any" name="total_sulfur_dioxide" required><br>
-        <label>Density:</label><input type="number" step="any" name="density" required><br>
-        <label>pH:</label><input type="number" step="any" name="pH" required><br>
-        <label>Sulphates:</label><input type="number" step="any" name="sulphates" required><br>
-        <label>Alcohol:</label><input type="number" step="any" name="alcohol" required><br><br>
-        <button type="submit">Predict</button>
-    </form>
+<body class="min-h-screen flex items-center justify-center p-4 relative font-sans text-slate-200">
+
+    <!-- Animated Background Elements -->
+    <div class="bg-blob bg-wine-800 w-96 h-96 rounded-full top-0 left-0 mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
+    <div class="bg-blob bg-purple-900 w-96 h-96 rounded-full top-0 right-0 mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
+    <div class="bg-blob bg-rose-900 w-96 h-96 rounded-full -bottom-32 left-20 mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000"></div>
+
+    <!-- Main Container -->
+    <main class="w-full max-w-6xl glass-panel rounded-3xl overflow-hidden shadow-2xl flex flex-col lg:flex-row animate-fade-in-up">
+        
+        <!-- Left Side: Visual & Context -->
+        <div class="lg:w-1/3 bg-gradient-to-br from-wine-900/80 to-black/80 p-8 flex flex-col justify-between relative overflow-hidden">
+            <!-- Decorative Circle -->
+            <div class="absolute top-[-50px] right-[-50px] w-40 h-40 bg-gold-500/20 rounded-full blur-2xl"></div>
+
+            <div class="z-10">
+                <div class="flex items-center gap-3 mb-6">
+                    <i class="fa-solid fa-wine-glass text-3xl text-gold-400"></i>
+                    <h1 class="text-3xl font-serif font-bold text-white tracking-wide">Vinify</h1>
+                </div>
+                <p class="text-wine-200 text-lg leading-relaxed mb-8">
+                    Predict the quality of your vintage blend using our advanced physicochemical analysis model.
+                </p>
+                
+                <!-- Dynamic Quality Meter (Visual Only) -->
+                <div class="bg-black/30 rounded-xl p-6 border border-white/5">
+                    <h3 class="text-sm uppercase tracking-widest text-wine-300 mb-4">Estimated Profile</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-xs mb-1 text-slate-400">
+                                <span>Acidity Balance</span>
+                                <span id="meter-acidity">50%</span>
+                            </div>
+                            <div class="w-full bg-slate-700 rounded-full h-1.5">
+                                <div id="bar-acidity" class="bg-wine-400 h-1.5 rounded-full transition-all duration-500" style="width: 50%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1 text-slate-400">
+                                <span>Sweetness</span>
+                                <span id="meter-sweetness">30%</span>
+                            </div>
+                            <div class="w-full bg-slate-700 rounded-full h-1.5">
+                                <div id="bar-sweetness" class="bg-gold-400 h-1.5 rounded-full transition-all duration-500" style="width: 30%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1 text-slate-400">
+                                <span>Body</span>
+                                <span id="meter-body">70%</span>
+                            </div>
+                            <div class="w-full bg-slate-700 rounded-full h-1.5">
+                                <div id="bar-body" class="bg-purple-400 h-1.5 rounded-full transition-all duration-500" style="width: 70%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="z-10 mt-8">
+                <div class="flex items-center gap-4 text-sm text-slate-400">
+                    <div class="flex -space-x-2">
+                        <div class="w-8 h-8 rounded-full bg-wine-700 border-2 border-wine-900 flex items-center justify-center text-xs">AI</div>
+                        <div class="w-8 h-8 rounded-full bg-purple-700 border-2 border-wine-900 flex items-center justify-center text-xs">ML</div>
+                    </div>
+                    <p>Powered by Scikit-Learn</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: The Form -->
+        <div class="lg:w-2/3 p-8 lg:p-12 relative">
+            <div class="absolute top-0 right-0 p-6 opacity-20 pointer-events-none">
+                <i class="fa-solid fa-wine-bottle text-9xl text-white transform rotate-12"></i>
+            </div>
+
+            <form id="predictionForm" action="/predict" method="post" class="relative z-10 space-y-8">
+                <div class="border-b border-white/10 pb-4 mb-6">
+                    <h2 class="text-2xl font-serif text-white">Physicochemical Properties</h2>
+                    <p class="text-slate-400 text-sm mt-1">Enter the laboratory measurements below.</p>
+                </div>
+
+                <!-- Input Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                    
+                    <!-- Fixed Acidity -->
+                    <div class="group">
+                        <label for="fixed_acidity" class="block text-xs font-bold uppercase tracking-wider text-wine-300 mb-2 group-focus-within:text-gold-400 transition-colors">
+                            Fixed Acidity
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-flask text-slate-500 group-focus-within:text-wine-400 transition-colors"></i>
+                            </div>
+                            <input type="number" step="any" name="fixed_acidity" id="fixed_acidity" required
+                                class="glass-input w-full pl-10 pr-4 py-3 rounded-lg placeholder-slate-600 focus:placeholder-slate-500"
+                                placeholder="e.g. 7.4">
+                        </div>
+                        <p class="text-[10px] text-slate-500 mt-1 ml-1">Tartaric acid (g/dm³)</p>
+                    </div>
+
+                    <!-- Volatile Acidity -->
+                    <div class="group">
+                        <label for="volatile_acidity" class="block text-xs font-bold uppercase tracking-wider text-wine-300 mb-2 group-focus-within:text-gold-400 transition-colors">
+                            Volatile Acidity
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-wind text-slate-500 group-focus-within:text-wine-400 transition-colors"></i>
+                            </div>
+                            <input type="number" step="any" name="volatile_acidity" id="volatile_acidity" required
+                                class="glass-input w-full pl-10 pr-4 py-3 rounded-lg placeholder-slate-600"
+                                placeholder="e.g. 0.7">
+                        </div>
+                        <p class="text-[10px] text-slate-500 mt-1 ml-1">Acetic acid (g/dm³)</p>
+                    </div>
+
+                    <!-- Citric Acid -->
+                    <div class="group">
+                        <label for="citric_acid" class="block text-xs font-bold uppercase tracking-wider text-wine-300 mb-2 group-focus-within:text-gold-400 transition-colors">
+                            Citric Acid
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-lemon text-slate-500 group-focus-within:text-wine-400 transition-colors"></i>
+                            </div>
+                            <input type="number" step="any" name="citric_acid" id="citric_acid" required
+                                class="glass-input w-full pl-10 pr-4 py-3 rounded-lg placeholder-slate-600"
+                                placeholder="e.g. 0.0">
+                        </div>
+                        <p class="text-[10px] text-slate-500 mt-1 ml-1">Adds freshness (g/dm³)</p>
+                    </div>
+
+                    <!-- Residual Sugar -->
+                    <div class="group">
+                        <label for="residual_sugar" class="block text-xs font-bold uppercase tracking-wider text-wine-300 mb-2 group-focus-within:text-gold-400 transition-colors">
+                            Residual Sugar
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-cube text-slate-500 group-focus-within:text-wine-400 transition-colors"></i>
+                            </div>
+                            <input type="number" step="any" name="residual_sugar" id="residual_sugar" required
+                                class="glass-input w-full pl-10 pr-4 py-3 rounded-lg placeholder-slate-600"
+                                placeholder="e.g. 1.9">
+                        </div>
+                         <p class="text-[10px] text-slate-500 mt-1 ml-1">Remaining sugar (g/dm³)</p>
+                    </div>
+
+                    <!-- Chlorides -->
+                    <div class="group">
+                        <label for="chlorides" class="block text-xs font-bold uppercase tracking-wider text-wine-300 mb-2 group-focus-within:text-gold-400 transition-colors">
+                            Chlorides
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-droplet text-slate-500 group-focus-within:text-wine-400 transition-colors"></i>
+                            </div>
+                            <input type="number" step="any" name="chlorides" id="chlorides" required
+                                class="glass-input w-full pl-10 pr-4 py-3 rounded-lg placeholder-slate-600"
+                                placeholder="e.g. 0.076">
+                        </div>
+                         <p class="="text-[10px] text-slate-500 mt-1 ml-1">Salt content (g/dm³)</p>
+                    </div>
+
+                    <!-- Free Sulfur Dioxide -->
+                    <div class="group">
+                        <label for="free_sulfur_dioxide" class="block text-xs font-bold uppercase tracking-wider text-wine-300 mb-2 group-focus-within:text-gold-400 transition-colors">
+                            Free SO2
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-cloud text-slate-500 group-focus-within:text-wine-400 transition-colors"></i>
+                            </div>
+                            <input type="number" step="any" name="free_sulfur_dioxide" id="free_sulfur_dioxide" required
+                                class="glass-input w-full pl-10 pr-4 py-3 rounded-lg placeholder-slate-600"
+                                placeholder="e.g. 11.0">
+                        </div>
+                         <p class="text-[10px] text-slate-500 mt-1 ml-1">Prevents microbial growth (mg/dm³)</p>
+                    </div>
+
+                    <!-- Total Sulfur Dioxide -->
+                    <div class="group">
+                        <label for="total_sulfur_dioxide" class="block text-xs font-bold uppercase tracking-wider text-wine-300 mb-2 group-focus-within:text-gold-400 transition-colors">
+                            Total SO2
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-layer-group text-slate-500 group-focus-within:text-wine-400 transition-colors"></i>
+                            </div>
+                            <input type="number" step="any" name="total_sulfur_dioxide" id="total_sulfur_dioxide" required
+                                class="glass-input w-full pl-10 pr-4 py-3 rounded-lg placeholder-slate-600"
+                                placeholder="e.g. 34.0">
+                        </div>
+                         <p class="text-[10px] text-slate-500 mt-1 ml-1">Total antioxidant (mg/dm³)</p>
+                    </div>
+
+                    <!-- Density -->
+                    <div class="group">
+                        <label for="density" class="block text-xs font-bold uppercase tracking-wider text-wine-300 mb-2 group-focus-within:text-gold-400 transition-colors">
+                            Density
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-weight-hanging text-slate-500 group-focus-within:text-wine-400 transition-colors"></i>
+                            </div>
+                            <input type="number" step="any" name="density" id="density" required
+                                class="glass-input w-full pl-10 pr-4 py-3 rounded-lg placeholder-slate-600"
+                                placeholder="e.g. 0.9978">
+                        </div>
+                         <p class="text-[10px] text-slate-500 mt-1 ml-1">Mass per volume (g/cm³)</p>
+                    </div>
+
+                    <!-- pH -->
+                    <div class="group">
+                        <label for="pH" class="block text-xs font-bold uppercase tracking-wider text-wine-300 mb-2 group-focus-within:text-gold-400 transition-colors">
+                            pH Level
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-scale-balanced text-slate-500 group-focus-within:text-wine-400 transition-colors"></i>
+                            </div>
+                            <input type="number" step="any" name="pH" id="pH" required
+                                class="glass-input w-full pl-10 pr-4 py-3 rounded-lg placeholder-slate-600"
+                                placeholder="e.g. 3.51">
+                        </div>
+                         <p class="text-[10px] text-slate-500 mt-1 ml-1">Acidity scale (0-14)</p>
+                    </div>
+
+                    <!-- Sulphates -->
+                    <div class="group">
+                        <label for="sulphates" class="block text-xs font-bold uppercase tracking-wider text-wine-300 mb-2 group-focus-within:text-gold-400 transition-colors">
+                            Sulphates
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-wand-magic-sparkles text-slate-500 group-focus-within:text-wine-400 transition-colors"></i>
+                            </div>
+                            <input type="number" step="any" name="sulphates" id="sulphates" required
+                                class="glass-input w-full pl-10 pr-4 py-3 rounded-lg placeholder-slate-600"
+                                placeholder="e.g. 0.56">
+                        </div>
+                         <p class="text-[10px] text-slate-500 mt-1 ml-1">Affects SO2 levels (g/dm³)</p>
+                    </div>
+
+                    <!-- Alcohol -->
+                    <div class="group md:col-span-2 lg:col-span-1"> <!-- Spans differently on medium vs large to keep grid balance -->
+                        <label for="alcohol" class="block text-xs font-bold uppercase tracking-wider text-wine-300 mb-2 group-focus-within:text-gold-400 transition-colors">
+                            Alcohol %
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-percent text-slate-500 group-focus-within:text-wine-400 transition-colors"></i>
+                            </div>
+                            <input type="number" step="any" name="alcohol" id="alcohol" required
+                                class="glass-input w-full pl-10 pr-4 py-3 rounded-lg placeholder-slate-600"
+                                placeholder="e.g. 9.4">
+                        </div>
+                         <p class="text-[10px] text-slate-500 mt-1 ml-1">Percent alcohol content (% vol)</p>
+                    </div>
+
+                </div>
+
+                <!-- Action Area -->
+                <div class="pt-6 flex items-center justify-between border-t border-white/10 mt-8">
+                    <button type="button" onclick="fillRandomData()" class="text-xs text-slate-500 hover:text-wine-300 underline decoration-dotted transition-colors">
+                        <i class="fa-solid fa-dice mr-1"></i> Fill with Sample Data
+                    </button>
+                    
+                    <button type="submit" class="group relative px-8 py-4 bg-gradient-to-r from-wine-700 to-wine-600 rounded-xl text-white font-bold shadow-lg shadow-wine-900/50 hover:shadow-wine-600/50 hover:scale-[1.02] transition-all duration-300 overflow-hidden">
+                        <div class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
+                        <span class="relative flex items-center gap-2">
+                            Analyze Vintage <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- Result Modal (Hidden by default) -->
+    <div id="resultModal" class="fixed inset-0 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-500">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeModal()"></div>
+        <div class="bg-slate-900 border border-wine-500/30 p-8 rounded-2xl max-w-md w-full mx-4 relative transform scale-95 transition-transform duration-300 shadow-2xl shadow-wine-900/50 text-center">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            
+            <div class="w-20 h-20 bg-wine-900/50 rounded-full flex items-center justify-center mx-auto mb-6 border border-wine-500/50">
+                <i class="fa-solid fa-wine-glass text-3xl text-gold-400"></i>
+            </div>
+            
+            <h3 class="text-2xl font-serif text-white mb-2">Analysis Complete</h3>
+            <p class="text-slate-400 mb-6">Based on the physicochemical properties provided:</p>
+            
+            <div class="bg-black/40 rounded-xl p-6 mb-6 border border-white/5">
+                <span class="block text-sm text-slate-400 uppercase tracking-widest mb-1">Predicted Quality</span>
+                <span id="resultScore" class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-yellow-200">8.5</span>
+                <span class="text-xl text-slate-500">/ 10</span>
+            </div>
+
+            <p id="resultVerdict" class="text-wine-300 font-medium italic">"An exceptional vintage with remarkable balance."</p>
+            
+            <button onclick="closeModal()" class="mt-8 w-full py-3 rounded-lg border border-white/10 hover:bg-white/5 text-slate-300 transition-colors">
+                Analyze Another
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Interactive Elements Logic
+        
+        // 1. Visual Meter Updates (Simulated based on inputs)
+        const inputs = document.querySelectorAll('input[type="number"]');
+        const meterAcidity = document.getElementById('bar-acidity');
+        const meterSweetness = document.getElementById('bar-sweetness');
+        const meterBody = document.getElementById('bar-body');
+        
+        inputs.forEach(input => {
+            input.addEventListener('input', updateMeters);
+        });
+
+        function updateMeters() {
+            // Simple logic to make the bars move based on specific inputs to show interactivity
+            const fixed = parseFloat(document.getElementById('fixed_acidity').value) || 0;
+            const sugar = parseFloat(document.getElementById('residual_sugar').value) || 0;
+            const density = parseFloat(document.getElementById('density').value) || 0;
+            const alcohol = parseFloat(document.getElementById('alcohol').value) || 0;
+
+            // Normalize roughly to 0-100% for visual effect
+            const acidVal = Math.min((fixed / 15) * 100, 100);
+            const sweetVal = Math.min((sugar / 20) * 100, 100);
+            
+            // Body is often correlated with density and alcohol
+            const bodyVal = Math.min(((density * 1000 - 990) + (alcohol)) * 5, 100);
+
+            meterAcidity.style.width = `${acidVal}%`;
+            document.getElementById('meter-acidity').innerText = `${Math.round(acidVal)}%`;
+            
+            meterSweetness.style.width = `${sweetVal}%`;
+            document.getElementById('meter-sweetness').innerText = `${Math.round(sweetVal)}%`;
+
+            meterBody.style.width = `${bodyVal}%`;
+            document.getElementById('meter-body').innerText = `${Math.round(bodyVal)}%`;
+        }
+
+        // 2. Random Data Generator
+        function fillRandomData() {
+            const randomData = {
+                fixed_acidity: (Math.random() * (15 - 4) + 4).toFixed(1),
+                volatile_acidity: (Math.random() * (1.6 - 0.1) + 0.1).toFixed(2),
+                citric_acid: (Math.random() * (1 - 0) + 0).toFixed(2),
+                residual_sugar: (Math.random() * (15 - 0.6) + 0.6).toFixed(1),
+                chlorides: (Math.random() * (0.6 - 0.01) + 0.01).toFixed(3),
+                free_sulfur_dioxide: Math.floor(Math.random() * (72 - 1) + 1),
+                total_sulfur_dioxide: Math.floor(Math.random() * (289 - 6) + 6),
+                density: (Math.random() * (1.005 - 0.987) + 0.987).toFixed(4),
+                pH: (Math.random() * (4.01 - 2.72) + 2.72).toFixed(2),
+                sulphates: (Math.random() * (2 - 0.22) + 0.22).toFixed(2),
+                alcohol: (Math.random() * (14.9 - 8) + 8).toFixed(1)
+            };
+
+            for (const [key, value] of Object.entries(randomData)) {
+                const el = document.getElementById(key);
+                if(el) el.value = value;
+            }
+            updateMeters();
+        }
+
+        // 3. Form Handling - real submit to Flask /predict route
+        const form = document.getElementById('predictionForm');
+
+        form.addEventListener('submit', (e) => {
+            // Show a quick loading state, then let the form submit normally to Flask
+            const btn = form.querySelector('button[type="submit"]');
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...';
+            btn.disabled = true;
+            // form submits normally here -> Flask handles /predict and renders results.html
+        });
+    </script>
 </body>
 </html>
