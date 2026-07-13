@@ -74,3 +74,34 @@ x==========x]
 [2026-07-04 12:56:36,798: INFO: main: >>>>>> stage Model Evaluation stage completed <<<<<<
 
 x==========x]
+[2026-07-04 13:13:41,085: INFO: _internal: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://10.45.224.218:8080]
+[2026-07-04 13:13:41,086: INFO: _internal: [33mPress CTRL+C to quit[0m]
+[2026-07-04 13:14:04,432: INFO: _internal: 127.0.0.1 - - [04/Jul/2026 13:14:04] "GET / HTTP/1.1" 200 -]
+[2026-07-04 13:14:04,780: INFO: _internal: 127.0.0.1 - - [04/Jul/2026 13:14:04] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -]
+[2026-07-04 13:14:27,832: INFO: _internal: 127.0.0.1 - - [04/Jul/2026 13:14:27] "POST /predict HTTP/1.1" 200 -]
+[2026-07-04 13:14:31,980: INFO: _internal: 127.0.0.1 - - [04/Jul/2026 13:14:31] "GET / HTTP/1.1" 200 -]
+[2026-07-08 12:09:47,395: INFO: _internal: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://10.83.242.218:8080]
+[2026-07-08 12:09:47,396: INFO: _internal: [33mPress CTRL+C to quit[0m]
+[2026-07-08 12:10:14,407: INFO: _internal: 127.0.0.1 - - [08/Jul/2026 12:10:14] "GET / HTTP/1.1" 200 -]
+[2026-07-08 12:10:14,583: INFO: _internal: 127.0.0.1 - - [08/Jul/2026 12:10:14] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -]
+[2026-07-13 22:09:09,473: INFO: _internal: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://10.130.173.218:8080]
+[2026-07-13 22:09:09,474: INFO: _internal: [33mPress CTRL+C to quit[0m]
+[2026-07-13 22:09:17,354: INFO: _internal: 10.130.173.218 - - [13/Jul/2026 22:09:17] "GET / HTTP/1.1" 200 -]
+[2026-07-13 22:09:20,650: INFO: _internal: 10.130.173.218 - - [13/Jul/2026 22:09:20] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -]
+[2026-07-13 22:10:14,367: INFO: _internal: 10.130.173.218 - - [13/Jul/2026 22:10:14] "POST /predict HTTP/1.1" 200 -]
+[2026-07-13 22:12:47,861: INFO: _internal: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://10.130.173.218:8080]
+[2026-07-13 22:12:47,862: INFO: _internal: [33mPress CTRL+C to quit[0m]
+[2026-07-13 22:12:58,612: INFO: _internal: 10.130.173.218 - - [13/Jul/2026 22:12:58] "GET / HTTP/1.1" 200 -]
+[2026-07-13 22:13:43,268: INFO: _internal: 10.130.173.218 - - [13/Jul/2026 22:13:43] "POST /predict HTTP/1.1" 200 -]
